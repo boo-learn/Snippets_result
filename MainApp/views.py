@@ -2,10 +2,8 @@ from django.http import Http404
 from django.shortcuts import render, redirect
 from MainApp.forms import SnippetForm
 from MainApp.models import Snippet
-
-
-def get_base_context(request, pagename):
-    return
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -32,7 +30,8 @@ def snippet_list(request):
     context["snippets"] = snippets
     return render(request, 'pages/view_snippets.html', context)
 
-
+# /accounts/login/?next=/snippet/add
+@login_required()
 def snippet_add(request):
     # Если GET-запрос,то мы хотим получить сраницу с формой создания сниппета
     context = {'pagename': 'Добавление нового сниппета'}
@@ -44,16 +43,31 @@ def snippet_add(request):
     elif request.method == "POST":
         form = SnippetForm(request.POST)
         if form.is_valid():
-            snippet = form.save(commit=False)
-            if request.user.is_authenticated:
-                snippet.user = request.user
-            snippet.save()
+            form.save()
             return redirect('snippet_list')
         # Если данные не валидные, возвращаем страницу с формой и отображаем ошибки заполнения
         form = SnippetForm(request.POST)
         print("errors = ", form.errors)
         context["form"] = form
         return render(request, 'pages/add_snippet.html', context)
+
+
+def snippet_edit(request, snippet_id):
+    context = {'pagename': 'Редактирование сниппета'}
+    if request.method == "GET":
+        try:
+            snippet = Snippet.objects.get(id=snippet_id)
+        except Snippet.DoesNotExist:
+            raise Http404
+        form = SnippetForm(instance=snippet)
+        context["form"] = form
+        context['button_name'] = "Edit"
+        return render(request, 'pages/add_snippet.html', context)
+    elif request.method == "POST":
+        snippet = Snippet.objects.get(id=snippet_id)
+        form = SnippetForm(request.POST, instance=snippet)
+        form.save()
+        return redirect('snippet_list')
 
 
 def snippet_delete(request, snippet_id):
@@ -64,3 +78,21 @@ def snippet_delete(request, snippet_id):
 
     snippet.delete()
     return redirect('snippet_list')
+
+
+def login_page(request):
+    if request.method == 'POST':
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = auth.authenticate(request, username=username, password=password)
+        if user is not None:
+            auth.login(request, user)
+        else:
+            # Return error message
+            pass
+    return redirect('main_page')
+
+
+def logout_page(request):
+    auth.logout(request)
+    return redirect('main_page')

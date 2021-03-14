@@ -27,6 +27,9 @@
                         <a href="{% url 'snippet_delete' snippet_id=snippet.id %}">
                             <i style="color: red;" class="fas fa-times"></i>
                         </a>
+                        <a href="{% url 'snippet_edit' snippet_id=snippet.id %}">
+                            <i class="fas fa-edit"></i>
+                        </a>
                     </td>
                     <td>{{ snippet.creation_date|date:"M d, Y" }}</td>
                 </tr>
