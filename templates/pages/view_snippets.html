@@ -17,6 +17,8 @@
                     <th scope="col">ID</th>
                     <th scope="col">Название</th>
                     <th scope="col">Дата создания</th>
+                    <th scope="col">Пользователь</th>
+                    <th scope="col">Публичный</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -32,6 +34,8 @@
                         </a>
                     </td>
                     <td>{{ snippet.creation_date|date:"M d, Y" }}</td>
+                    <td>{{ snippet.user|default:"Анонимный"}}</td>
+                    <td>{{ snippet.public}}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

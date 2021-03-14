@@ -26,9 +26,18 @@ def snippet(request, snippet_id):
 
 def snippet_list(request):
     context = {'pagename': 'Просмотр сниппетов'}
-    snippets = Snippet.objects.all()
+    snippets = Snippet.objects.filter(public=True)
     context["snippets"] = snippets
     return render(request, 'pages/view_snippets.html', context)
+
+
+@login_required()
+def snippet_my(request):
+    context = {'pagename': 'Мои сниппеты'}
+    snippets = Snippet.objects.filter(user=request.user)
+    context["snippets"] = snippets
+    return render(request, 'pages/view_snippets.html', context)
+
 
 # /accounts/login/?next=/snippet/add
 @login_required()
@@ -43,7 +52,9 @@ def snippet_add(request):
     elif request.method == "POST":
         form = SnippetForm(request.POST)
         if form.is_valid():
-            form.save()
+            snippet = form.save(commit=False)
+            snippet.user = request.user
+            snippet.save()
             return redirect('snippet_list')
         # Если данные не валидные, возвращаем страницу с формой и отображаем ошибки заполнения
         form = SnippetForm(request.POST)

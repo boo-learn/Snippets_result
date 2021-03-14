@@ -16,6 +16,9 @@
                         сниппет</a></li>
                     <li class="form-inline"><a class="btn btn-outline-info" href="{%url 'snippet_list' %}">Посмотреть
                         сниппеты</a></li>
+                    <li class="form-inline">
+                        <a class="btn btn-outline-info" href="{%url 'snippet_my' %}">Мои сниппеты</a>
+                    </li>
                 </ul>
             </div>
             {% if request.user.is_authenticated %}
