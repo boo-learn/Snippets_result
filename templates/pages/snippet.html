@@ -20,6 +20,10 @@
             </div>
         </div>
     </div>
- </fieldset>
-
+</fieldset>
+<form action="{% url 'comment_add' %}" method="post">
+    <input type="hidden" name="snippet" value="{{snippet.id}}">
+    {{ comment_form.as_p }}
+    <button type="submit">Отправить</button>
+</form>
 {% endblock %}

@@ -1,9 +1,10 @@
 from django.http import Http404
 from django.shortcuts import render, redirect
-from MainApp.forms import SnippetForm
+from MainApp.forms import SnippetForm, UserForm, CommentForm
 from MainApp.models import Snippet
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 
 def index(request):
@@ -20,7 +21,8 @@ def snippet(request, snippet_id):
         raise Http404
 
     context["snippet"] = snippet
-    # context["comments"] = comments
+    form = CommentForm()
+    context["comment_form"] = form
     return render(request, 'pages/snippet.html', context)
 
 
@@ -63,6 +65,10 @@ def snippet_add(request):
         return render(request, 'pages/add_snippet.html', context)
 
 
+def comment_add(request):
+    if request.method == "POST":
+        ...
+
 def snippet_edit(request, snippet_id):
     context = {'pagename': 'Редактирование сниппета'}
     if request.method == "GET":
@@ -91,11 +97,28 @@ def snippet_delete(request, snippet_id):
     return redirect('snippet_list')
 
 
+def create_user(request):
+    context = {'pagename': 'Регистрация пользователя'}
+    if request.method == "GET":
+        form = UserForm()
+        context["form"] = form
+        return render(request, 'pages/registration.html', context)
+    elif request.method == "POST":
+        form = UserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('main_page')
+        context["form"] = form
+        return render(request, 'pages/registration.html', context)
+    # user = User.objects.create_user
+
+
 def login_page(request):
     if request.method == 'POST':
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = auth.authenticate(request, username=username, password=password)
+        print("user = ", user)
         if user is not None:
             auth.login(request, user)
         else:
